@@ -1,0 +1,347 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CareerCompass AI | Find Your Future</title>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;800&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg-color: #0f172a;
+            --surface: #1e293b;
+            --primary: #8b5cf6;
+            --secondary: #3b82f6;
+            --text-main: #f8fafc;
+            --text-muted: #94a3b8;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Outfit', sans-serif;
+        }
+
+        body {
+            background-color: var(--bg-color);
+            color: var(--text-main);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            overflow-x: hidden;
+        }
+
+        /* Animated Background Elements */
+        .blob {
+            position: fixed;
+            filter: blur(100px);
+            z-index: -1;
+            opacity: 0.5;
+            animation: float 10s infinite ease-in-out alternate;
+        }
+        .blob-1 { top: -10%; left: -10%; width: 400px; height: 400px; background: var(--primary); border-radius: 50%; }
+        .blob-2 { bottom: -10%; right: -10%; width: 500px; height: 500px; background: var(--secondary); border-radius: 50%; }
+
+        @keyframes float {
+            0% { transform: translateY(0) scale(1); }
+            100% { transform: translateY(30px) scale(1.1); }
+        }
+
+        header {
+            text-align: center;
+            padding: 3rem 1rem;
+            animation: slideDown 0.8s ease-out;
+        }
+
+        h1 {
+            font-size: 3.5rem;
+            background: linear-gradient(to right, var(--primary), var(--secondary));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            margin-bottom: 0.5rem;
+        }
+
+        p.tagline {
+            font-size: 1.2rem;
+            color: var(--text-muted);
+            letter-spacing: 1px;
+        }
+
+        .container {
+            width: 100%;
+            max-width: 900px;
+            padding: 2rem;
+            background: rgba(30, 41, 59, 0.7);
+            backdrop-filter: blur(12px);
+            border-radius: 20px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
+            margin-bottom: 4rem;
+            animation: fadeIn 1s ease-out;
+        }
+
+        .form-group {
+            margin-bottom: 1.5rem;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 0.5rem;
+            font-weight: 600;
+            color: var(--text-main);
+        }
+
+        input {
+            width: 100%;
+            padding: 1rem;
+            border-radius: 10px;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            background: rgba(15, 23, 42, 0.6);
+            color: white;
+            font-size: 1rem;
+            transition: all 0.3s;
+        }
+
+        input:focus {
+            outline: none;
+            border-color: var(--primary);
+            box-shadow: 0 0 15px rgba(139, 92, 246, 0.3);
+        }
+
+        button {
+            width: 100%;
+            padding: 1.2rem;
+            border: none;
+            border-radius: 10px;
+            background: linear-gradient(to right, var(--primary), var(--secondary));
+            color: white;
+            font-size: 1.2rem;
+            font-weight: 800;
+            cursor: pointer;
+            transition: transform 0.2s, box-shadow 0.2s;
+            margin-top: 1rem;
+        }
+
+        button:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 10px 20px rgba(139, 92, 246, 0.4);
+        }
+
+        /* Loader */
+        .loader {
+            display: none;
+            text-align: center;
+            margin: 2rem 0;
+        }
+        .spinner {
+            width: 50px;
+            height: 50px;
+            border: 5px solid rgba(255,255,255,0.1);
+            border-top-color: var(--primary);
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 1rem;
+        }
+
+        @keyframes spin { 100% { transform: rotate(360deg); } }
+
+        /* Results Area */
+        #results {
+            display: none;
+            margin-top: 3rem;
+        }
+
+        .card {
+            background: rgba(15, 23, 42, 0.8);
+            border-radius: 15px;
+            padding: 1.5rem;
+            margin-bottom: 1.5rem;
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            animation: slideUp 0.6s ease-out forwards;
+            opacity: 0;
+        }
+
+        .card h3 { color: var(--secondary); font-size: 1.8rem; margin-bottom: 1rem; }
+        
+        .metrics {
+            display: flex;
+            gap: 1rem;
+            margin-bottom: 1rem;
+            flex-wrap: wrap;
+        }
+        
+        .metric-badge {
+            background: rgba(139, 92, 246, 0.2);
+            padding: 0.5rem 1rem;
+            border-radius: 20px;
+            font-size: 0.9rem;
+            border: 1px solid rgba(139, 92, 246, 0.4);
+        }
+
+        .section-title { color: var(--primary); margin: 1rem 0 0.5rem; font-size: 1.1rem; }
+        
+        ul { list-style-position: inside; color: var(--text-muted); margin-bottom: 1rem; line-height: 1.6; }
+
+        footer {
+            text-align: center;
+            padding: 2rem;
+            margin-top: auto;
+            color: var(--text-muted);
+            font-size: 0.9rem;
+            line-height: 1.8;
+            width: 100%;
+            background: rgba(15, 23, 42, 0.8);
+            backdrop-filter: blur(10px);
+        }
+
+        @keyframes slideDown { from { opacity: 0; transform: translateY(-20px); } to { opacity: 1; transform: translateY(0); } }
+        @keyframes slideUp { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
+        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+    </style>
+</head>
+<body>
+
+    <div class="blob blob-1"></div>
+    <div class="blob blob-2"></div>
+
+    <header>
+        <h1>CareerCompass AI</h1>
+        <p class="tagline">Find Your Future, Powered by AI.</p>
+    </header>
+
+    <div class="container">
+        <form id="profileForm">
+            <div class="form-group">
+                <label for="interests">What are your core interests?</label>
+                <input type="text" id="interests" placeholder="e.g., Coding, space, solving puzzles, art" required>
+            </div>
+            <div class="form-group">
+                <label for="skills">What skills do you currently have?</label>
+                <input type="text" id="skills" placeholder="e.g., Python, writing, communication, math" required>
+            </div>
+            <div class="form-group">
+                <label for="subjects">Favorite subjects in school/college?</label>
+                <input type="text" id="subjects" placeholder="e.g., Mathematics, Physics, Computer Science" required>
+            </div>
+            <div class="form-group">
+                <label for="traits">Describe your personality traits:</label>
+                <input type="text" id="traits" placeholder="e.g., Detail-oriented, introverted, creative" required>
+            </div>
+            <button type="submit">Analyze Profile 🚀</button>
+        </form>
+
+        <div class="loader" id="loader">
+            <div class="spinner"></div>
+            <p>AI is crunching the data to build your future...</p>
+        </div>
+
+        <div id="results">
+            <!-- Dynamic content injected here -->
+        </div>
+    </div>
+
+    <footer>
+        Developed and deployed by Kaman Das ©2026<br>
+        Made with Love ❤️
+    </footer>
+
+    <script>
+        // ====================================================================
+        // IMPORTANT: RENDER DEPLOYMENT VARIABLE
+        // Paste your Render backend URL here (e.g., "https://your-app.onrender.com")
+        // If testing locally, leave it as an empty string ("") to use relative paths.
+        // ====================================================================
+        const ONRENDER_BACKEND_URL = ""; 
+        
+        document.getElementById('profileForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            
+            const btn = e.target.querySelector('button');
+            const loader = document.getElementById('loader');
+            const resultsDiv = document.getElementById('results');
+            
+            btn.style.display = 'none';
+            loader.style.display = 'block';
+            resultsDiv.style.display = 'none';
+            resultsDiv.innerHTML = '';
+
+            const payload = {
+                interests: document.getElementById('interests').value,
+                skills: document.getElementById('skills').value,
+                subjects: document.getElementById('subjects').value,
+                traits: document.getElementById('traits').value
+            };
+
+            try {
+                const endpoint = ONRENDER_BACKEND_URL ? `${ONRENDER_BACKEND_URL}/api/analyze` : '/api/analyze';
+                const response = await fetch(endpoint, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(payload)
+                });
+
+                const data = await response.json();
+                
+                if (data.error) throw new Error(data.error);
+
+                renderResults(data);
+
+            } catch (error) {
+                resultsDiv.innerHTML = `<p style="color: #ef4444; text-align: center;">Error: ${error.message}</p>`;
+                resultsDiv.style.display = 'block';
+            } finally {
+                btn.style.display = 'block';
+                loader.style.display = 'none';
+            }
+        });
+
+        function renderResults(data) {
+            const resultsDiv = document.getElementById('results');
+            let html = `<h2 style="margin-bottom: 2rem; text-align:center; color: var(--text-main);">Your AI Career Roadmap</h2>`;
+
+            // Careers
+            data.careers.forEach((career, index) => {
+                const delay = index * 0.2;
+                html += `
+                <div class="card" style="animation-delay: ${delay}s">
+                    <h3>${career.title}</h3>
+                    <div class="metrics">
+                        <span class="metric-badge">🎯 Suitability: ${career.suitability}%</span>
+                        <span class="metric-badge">💰 Salary: ${career.salaryRange}</span>
+                        <span class="metric-badge">📈 Demand Score: ${career.futureDemand}/100</span>
+                    </div>
+                    
+                    <div class="section-title">Roadmap to Job-Ready</div>
+                    <ul>${career.roadmap.map(r => `<li>${r}</li>`).join('')}</ul>
+
+                    <div class="section-title">Recommended Learning</div>
+                    <ul>
+                        <li><strong>Courses:</strong> ${career.courses.join(', ')}</li>
+                        <li><strong>Certifications:</strong> ${career.certifications.join(', ')}</li>
+                        <li><strong>YouTube:</strong> ${career.youtubePlaylists.join(', ')}</li>
+                    </ul>
+                </div>`;
+            });
+
+            // Projects Section
+            html += `
+            <div class="card" style="animation-delay: 1s; border-color: var(--primary);">
+                <h3>🚀 Recommended Projects</h3>
+                
+                <div class="section-title">Beginner</div>
+                <ul>${data.projects.beginner.map(p => `<li>${p}</li>`).join('')}</ul>
+                
+                <div class="section-title">Intermediate</div>
+                <ul>${data.projects.intermediate.map(p => `<li>${p}</li>`).join('')}</ul>
+                
+                <div class="section-title">Portfolio Boosters</div>
+                <ul>${data.projects.portfolio.map(p => `<li>${p}</li>`).join('')}</ul>
+            </div>`;
+
+            resultsDiv.innerHTML = html;
+            resultsDiv.style.display = 'block';
+        }
+    </script>
+</body>
+</html>
