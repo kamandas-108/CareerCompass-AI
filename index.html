@@ -281,14 +281,28 @@
                     body: JSON.stringify(payload)
                 });
 
-                const data = await response.json();
+                // Instead of assuming JSON, we fetch text first to prevent the "Unexpected token <" crash
+                const responseText = await response.text();
                 
+                let data;
+                try {
+                    data = JSON.parse(responseText);
+                } catch (parseError) {
+                    // If parsing fails, Render returned HTML (e.g., server asleep, or 500 error page)
+                    console.error("Server returned non-JSON response:", responseText);
+                    throw new Error(`The backend server might be asleep or encountered an error. Please try again in about 30 seconds. (Status: ${response.status})`);
+                }
+                
+                if (!response.ok) {
+                    throw new Error(data.error || `Server responded with status: ${response.status}`);
+                }
+
                 if (data.error) throw new Error(data.error);
 
                 renderResults(data);
 
             } catch (error) {
-                resultsDiv.innerHTML = `<p style="color: #ef4444; text-align: center;">Error: ${error.message}</p>`;
+                resultsDiv.innerHTML = `<p style="color: #ef4444; text-align: center; font-weight: 600; padding: 1rem; background: rgba(239, 68, 68, 0.1); border-radius: 10px; border: 1px solid rgba(239, 68, 68, 0.3);">Error: ${error.message}</p>`;
                 resultsDiv.style.display = 'block';
             } finally {
                 btn.style.display = 'block';
@@ -325,19 +339,21 @@
             });
 
             // Projects Section
-            html += `
-            <div class="card" style="animation-delay: 1s; border-color: var(--primary);">
-                <h3>🚀 Recommended Projects</h3>
-                
-                <div class="section-title">Beginner</div>
-                <ul>${data.projects.beginner.map(p => `<li>${p}</li>`).join('')}</ul>
-                
-                <div class="section-title">Intermediate</div>
-                <ul>${data.projects.intermediate.map(p => `<li>${p}</li>`).join('')}</ul>
-                
-                <div class="section-title">Portfolio Boosters</div>
-                <ul>${data.projects.portfolio.map(p => `<li>${p}</li>`).join('')}</ul>
-            </div>`;
+            if(data.projects) {
+                html += `
+                <div class="card" style="animation-delay: 1s; border-color: var(--primary);">
+                    <h3>🚀 Recommended Projects</h3>
+                    
+                    <div class="section-title">Beginner</div>
+                    <ul>${data.projects.beginner.map(p => `<li>${p}</li>`).join('')}</ul>
+                    
+                    <div class="section-title">Intermediate</div>
+                    <ul>${data.projects.intermediate.map(p => `<li>${p}</li>`).join('')}</ul>
+                    
+                    <div class="section-title">Portfolio Boosters</div>
+                    <ul>${data.projects.portfolio.map(p => `<li>${p}</li>`).join('')}</ul>
+                </div>`;
+            }
 
             resultsDiv.innerHTML = html;
             resultsDiv.style.display = 'block';
