@@ -65,13 +65,12 @@ def analyze_profile():
         model = genai.GenerativeModel('gemini-2.5-flash')
         response = model.generate_content(prompt)
         
-        # Clean up potential markdown formatting from Gemini
+        # Safely clean up potential markdown formatting from Gemini
+        # This approach avoids the syntax errors caused by copy/pasting backticks
         response_text = response.text.strip()
-        if response_text.startswith("```json"):
-            response_text = response_text[7:-3].strip()
-        elif response_text.startswith("
-```"):
-            response_text = response_text[3:-3].strip()
+        response_text = response_text.replace("```json", "")
+        response_text = response_text.replace("```", "")
+        response_text = response_text.strip()
 
         parsed_data = json.loads(response_text)
         return jsonify(parsed_data), 200
